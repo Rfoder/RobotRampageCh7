@@ -1,2 +1,6 @@
 C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\obj\x86\Debug\RobotRampageCh7.csprojResolveAssemblyReference.cache
 C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\obj\x86\Debug\Microsoft.Xna.Framework.RuntimeProfile.txt
+C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\bin\x86\Debug\RobotRampageCh7.exe
+C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\bin\x86\Debug\RobotRampageCh7.pdb
+C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\obj\x86\Debug\RobotRampageCh7.exe
+C:\Visual Studio 2012\Projects\RobotRampageCh7\RobotRampageCh7\RobotRampageCh7\obj\x86\Debug\RobotRampageCh7.pdb

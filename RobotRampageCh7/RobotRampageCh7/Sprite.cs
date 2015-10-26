@@ -263,7 +263,7 @@ namespace RobotRampageCh7
                         RelativeCenter,
                         1.0f,
                         SpriteEffects.None,
-                        0, 0f);
+                        0.0f);
                 }
             }
         }
