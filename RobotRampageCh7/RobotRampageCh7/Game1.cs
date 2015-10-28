@@ -100,6 +100,17 @@ namespace RobotRampageCh7
                 1,
                 new Vector2(300, 300));
 
+
+            //pg. 227
+            EffectsManager.Initialize(
+                spriteSheet,
+                new Rectangle(0, 288, 2, 2),
+                new Rectangle(0, 256, 32, 32),
+                3);
+
+            //pg. 231
+            WeaponManager.Texture = spriteSheet;
+
         }
 
         /// <summary>
@@ -124,6 +135,10 @@ namespace RobotRampageCh7
 
             //pg. 203
             Player.Update(gameTime);
+            //pg. 227
+            EffectsManager.Update(gameTime);
+            //pg. 231
+            WeaponManager.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -182,6 +197,10 @@ namespace RobotRampageCh7
         spriteBatch.Begin();
     TileMap.Draw(spriteBatch);
     Player.Draw(spriteBatch);
+            //pg.227
+    EffectsManager.Draw(spriteBatch);
+            //pg. 231
+    WeaponManager.Draw(spriteBatch);
     spriteBatch.End();
 
     base.Draw(gameTime);

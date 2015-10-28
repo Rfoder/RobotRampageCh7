@@ -177,6 +177,14 @@ namespace RobotRampageCh7
             {
                 fireAngle.Normalize();
                 turretAngle = fireAngle;
+               
+                //pg. 230
+                    if (WeaponManager.CanFireWeapon)
+                    {
+                        WeaponManager.FireWeapon(
+                        TurretSprite.WorldLocation,
+                        fireAngle * WeaponManager.WeaponSpeed);
+                    }
             }
             BaseSprite.RotateTo(baseAngle);
             TurretSprite.RotateTo(turretAngle);
