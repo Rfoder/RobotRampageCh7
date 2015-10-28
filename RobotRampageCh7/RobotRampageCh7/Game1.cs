@@ -50,6 +50,8 @@ namespace RobotRampageCh7
             this.graphics.PreferredBackBufferWidth = 800;
             this.graphics.PreferredBackBufferHeight = 600;
             this.graphics.ApplyChanges();
+            //pg. 259
+           // this.IsMouseVisible = true;
             base.Initialize();
         }
 
@@ -201,6 +203,35 @@ namespace RobotRampageCh7
     EffectsManager.Draw(spriteBatch);
             //pg. 231
     WeaponManager.Draw(spriteBatch);
+
+
+            //Temp code
+    //Vector2 mouseLocation = new Vector2(
+    //    Mouse.GetState().X, Mouse.GetState().Y);
+
+    //mouseLocation += Camera.Position;
+
+    //List<Vector2> path = PathFinder.FindPath(
+    //    TileMap.GetSquareAtPixel(mouseLocation),
+    //    TileMap.GetSquareAtPixel(Player.BaseSprite.WorldCenter));
+
+    //if (!(path == null))
+    //{
+    //    foreach (Vector2 node in path)
+    //    {
+    //        spriteBatch.Draw(
+    //            spriteSheet,
+    //            TileMap.SquareScreenRectangle((int)node.X,
+    //            (int)node.Y),
+    //            new Rectangle(0, 288, 32, 32),
+    //            new Color(128, 0, 0, 80));
+    //    }
+    //}
+
+            //End Temporary code
+
+
+
     spriteBatch.End();
 
     base.Draw(gameTime);

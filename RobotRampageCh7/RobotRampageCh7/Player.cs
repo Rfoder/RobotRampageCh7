@@ -26,8 +26,17 @@ namespace RobotRampageCh7
         //pg. 210
         private static Rectangle scrollArea =
             new Rectangle(150, 100, 500, 400);
-       
 
+        //pg. 261
+        #region Properties
+        public static Vector2 PathingNodePosition
+        {
+            get
+            {
+                return TileMap.GetSquareAtPixel(BaseSprite.WorldCenter);
+            }
+        }
+        #endregion
         //pg.201
         #region Initialization
         public static void Initialize(
