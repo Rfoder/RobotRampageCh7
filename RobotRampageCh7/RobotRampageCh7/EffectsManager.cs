@@ -145,7 +145,7 @@ namespace RobotRampageCh7
                 new Color(1.0f, 0.3f, 0f, 0.5f),
                 new Color(1.0f, 0.3f, 0f, 0f));
         }
-        public static void AssLargeExplosion(Vector2 location)
+        public static void AddLargeExplosion(Vector2 location)
         {
             AddExplosion(
                 location,

@@ -26,8 +26,15 @@ namespace RobotRampageCh7
         public enum WeaponType { Normal, Triple, Rocket };
         static public WeaponType CurrentWeaponType = WeaponType.Triple;
         static public float WeaponTimeRemaing = 30.0f;
-        static private float weapomTimeDefault = 30.0f;
+        static private float weaponTimeDefault = 30.0f;
         static private float tripleWeaponSplitAngle = 15;
+
+        //pg. 239
+        static public List<Sprite> PowerUps = new List<Sprite>();
+        static private int maxActivePowerups = 5;
+        static private float timeSinceLastPowerup = 0.0f;
+        static private float timeBetweenPowerups = 2.0f;
+        static private Random rand = new Random();
 
         #endregion
 
@@ -85,6 +92,23 @@ namespace RobotRampageCh7
             shot.RotateTo(velocity);
             Shots.Add(shot);
         }
+
+        //pg. 237
+        private static void createLargeExplosion(Vector2 location)
+        {
+            EffectsManager.AddLargeExplosion(
+                location + new Vector2(-10, -10));
+            EffectsManager.AddLargeExplosion(
+                location + new Vector2(-10, 10));
+            EffectsManager.AddLargeExplosion(
+                location + new Vector2(10, 10));
+            EffectsManager.AddLargeExplosion(
+                location + new Vector2(10, -10));
+            EffectsManager.AddLargeExplosion(location);
+        }
+                
+
+
         #endregion
 
         
@@ -141,7 +165,119 @@ namespace RobotRampageCh7
             }
             shotTimer = 0.0f;
         }
+
+        //pg. 239
+        private static void tryToSpawnPowerup(int x, int y, WeaponType
+            type)
+        {
+            if (PowerUps.Count >= maxActivePowerups)
+            {
+                return;
+            }
+
+            Rectangle thisDestination =
+                TileMap.SquareWorldRectangle(new Vector2(x, y));
+            foreach (Sprite powerup in PowerUps)
+            {
+                if (powerup.WorldRectangle == thisDestination)
+                {
+                    return;
+                }
+            }
+           // if (!TileMap.IsWallTile(x, y))
+            //pg. 262
+            if (!(PathFinder.FindPath(
+                new Vector2(x,y),
+                Player.PathingNodePosition)==null))
+
+            {
+                Sprite newPowerup = new Sprite(
+                    new Vector2(thisDestination.X, thisDestination.Y),
+                    Texture,
+                    new Rectangle(64, 128, 32, 32),
+                    Vector2.Zero);
+                newPowerup.Animate = false;
+                newPowerup.CollisionRadius = 14;
+                newPowerup.AddFrame(new Rectangle(96, 128, 32, 32));
+                if (type == WeaponType.Rocket)
+                    newPowerup.Frame = 1;
+                PowerUps.Add(newPowerup);
+                timeSinceLastPowerup = 0.0f;
+            }
+        }
+
+        //pg. 240
+        private static void checkPowerupSpawns(float elapsed)
+        {
+            timeSinceLastPowerup += elapsed;
+            if (timeSinceLastPowerup >= timeBetweenPowerups)
+            {
+                WeaponType type = WeaponType.Triple;
+                if (rand.Next(0, 2) == 1)
+                {
+                    type = WeaponType.Rocket;
+                }
+                tryToSpawnPowerup(
+                    rand.Next(0, TileMap.MapWidth),
+                    rand.Next(0, TileMap.MapHeight),
+                    type);
+            }
+        }
+
         #endregion
+
+        //pg. 236
+#region Collision Detection
+        private static void checkShotWallImpacts(Sprite shot)
+        {
+            if (shot.Expired)
+            {
+                return;
+            }
+
+            if (TileMap.IsWallTile(
+                TileMap.GetSquareAtPixel(shot.WorldCenter)))
+            {
+                shot.Expired = true;
+
+                if (shot.Frame ==0)
+                {
+                    EffectsManager.AddSparksEffect(
+                        shot.WorldCenter,
+                        shot.Velocity);
+
+                }
+                else
+                {
+                    createLargeExplosion(shot.WorldCenter);
+                }
+            }
+        }
+
+        //pg. 241
+        private static void checkPowerupPickups()
+        {
+            for (int x = PowerUps.Count - 1; x >= 0; x--)
+            {
+                if (Player.BaseSprite.IsCircleColliding(
+                    PowerUps[x].WorldCenter,
+                    PowerUps[x].CollisionRadius))
+                {
+                    switch (PowerUps[x].Frame)
+                    {
+                        case 0: CurrentWeaponType = WeaponType.Triple;
+                            break;
+
+                        case 1: CurrentWeaponType = WeaponType.Rocket;
+                            break;
+                    }
+                    WeaponTimeRemaing = weaponTimeDefault;
+                    PowerUps.RemoveAt(x);
+                }
+            }
+        }
+#endregion
+
 
         #region Update and Draw
         static public void Update(GameTime gameTime)
@@ -154,15 +290,27 @@ namespace RobotRampageCh7
             for (int x = Shots.Count - 1; x >= 0; x--)
             {
                 Shots[x].Update(gameTime);
+
+                checkShotWallImpacts(Shots[x]);
+
                 if (Shots[x].Expired)
                 {
                     Shots.RemoveAt(x);
                 }
             }
+            //pg. 241
+            checkPowerupSpawns(elapsed);
+            checkPowerupPickups();
+
         }
         static public void Draw(SpriteBatch spriteBatch)
         {
             foreach (Particle sprite in Shots)
+            {
+                sprite.Draw(spriteBatch);
+            }
+            //pg. 241
+            foreach (Sprite sprite in PowerUps)
             {
                 sprite.Draw(spriteBatch);
             }
