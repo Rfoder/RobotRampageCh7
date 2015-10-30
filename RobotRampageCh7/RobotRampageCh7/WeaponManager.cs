@@ -250,6 +250,8 @@ namespace RobotRampageCh7
                 else
                 {
                     createLargeExplosion(shot.WorldCenter);
+                    //pg. 282
+                    checkRocketSplashDamage(shot.WorldCenter);
                 }
             }
         }
@@ -276,6 +278,64 @@ namespace RobotRampageCh7
                 }
             }
         }
+        //pg. 281
+        private static void checkShotEnemyImpacts(Sprite shot)
+        {
+            if (shot.Expired)
+            {
+                return;
+            }
+            foreach (Enemy enemy in EnemyManager.Enemies)
+            {
+                if (!enemy.Destroyed)
+                {
+                    if (shot.IsCircleColliding(
+                        enemy.EnemyBase.WorldCenter,
+                        enemy.EnemyBase.CollisionRadius))
+                    {
+                        shot.Expired = true;
+                        enemy.Destroyed = true;
+                        //pg. 285
+                        GameManager.Score += 10;
+
+                        if (shot.Frame == 0)
+                        {
+                            EffectsManager.AddExplosion(
+                                enemy.EnemyBase.WorldCenter,
+                                enemy.EnemyBase.Velocity / 30);
+                        }
+                        else
+                        {
+                            if (shot.Frame == 1)
+                            {
+                                createLargeExplosion(shot.WorldCenter);
+                                checkRocketSplashDamage(shot.WorldCenter);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        private static void checkRocketSplashDamage(Vector2 location)
+        {
+            int rocketSplashRadius = 40;
+            foreach (Enemy enemy in EnemyManager.Enemies)
+            {
+                if (!enemy.Destroyed)
+                {
+                    if (enemy.EnemyBase.IsCircleColliding(
+                        location, rocketSplashRadius))
+                    {
+                        enemy.Destroyed = true;
+                        //pg. 285
+                        GameManager.Score += 10;
+                        EffectsManager.AddExplosion(
+                            enemy.EnemyBase.WorldCenter,
+                            Vector2.Zero);
+                    }
+                }
+            }
+        }
 #endregion
 
 
@@ -292,6 +352,7 @@ namespace RobotRampageCh7
                 Shots[x].Update(gameTime);
 
                 checkShotWallImpacts(Shots[x]);
+                checkShotEnemyImpacts(Shots[x]);
 
                 if (Shots[x].Expired)
                 {

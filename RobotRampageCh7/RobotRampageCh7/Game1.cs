@@ -24,6 +24,16 @@ namespace RobotRampageCh7
         Texture2D spriteSheet;
         Texture2D titleScreen;
         SpriteFont pericles14;
+
+        //pg. 285
+        enum GameStates {TitleScreen, Playing, WaveComplete, GameOver};
+        GameStates gameState = GameStates.TitleScreen;
+
+        float gameOverTimer = 0.0f;
+        float gameOverDelay = 6.0f;
+
+        float waveCompleteTimer = 0.0f;
+        float waveCompleteDelay = 6.0f;
        
         //pg. 184
         //Temp code
@@ -100,7 +110,8 @@ namespace RobotRampageCh7
                 6,
                 new Rectangle(0, 96, 32, 32),
                 1,
-                new Vector2(300, 300));
+                //pg. 270
+                new Vector2(32, 32));
 
 
             //pg. 227
@@ -113,6 +124,21 @@ namespace RobotRampageCh7
             //pg. 231
             WeaponManager.Texture = spriteSheet;
 
+            //pg. 270
+            GoalManager.Initialize(
+                spriteSheet,
+                new Rectangle(0, 7 * 32, 32, 32),
+                new Rectangle(3 * 32, 7 * 32, 32, 32),
+                3,
+                1);
+            //pg. 286
+            //GoalManager.GenerateComputers(10);
+
+            //pg. 279
+            EnemyManager.Initialize(
+                spriteSheet,
+                new Rectangle(0, 160, 32, 32));
+
         }
 
         /// <summary>
@@ -123,7 +149,20 @@ namespace RobotRampageCh7
         {
             // TODO: Unload any non ContentManager content here
         }
+        //pg. 286
 
+        private void checkPlayerDeath()
+        {
+            foreach (Enemy enemy in EnemyManager.Enemies)
+            {
+                if (enemy.EnemyBase.IsCircleColliding(
+                    Player.BaseSprite.WorldCenter,
+                    Player.BaseSprite.CollisionRadius))
+                {
+                    gameState = GameStates.GameOver;
+                }
+            }
+        }
         /// <summary>
         /// Allows the game to run logic such as updating the world,
         /// checking for collisions, gathering input, and playing audio.
@@ -135,12 +174,58 @@ namespace RobotRampageCh7
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
 
-            //pg. 203
-            Player.Update(gameTime);
-            //pg. 227
-            EffectsManager.Update(gameTime);
-            //pg. 231
-            WeaponManager.Update(gameTime);
+            //pg. 286
+            switch (gameState)
+            {
+                case GameStates.TitleScreen:
+                    if ((GamePad.GetState(PlayerIndex.One).Buttons.A ==
+                        ButtonState.Pressed) ||
+                        (Keyboard.GetState().IsKeyDown(Keys.Space)))
+                    {
+                        GameManager.StartNewGame();
+                        gameState = GameStates.Playing;
+                    }
+                    break;
+
+                case GameStates.Playing:
+                    //pg. 203
+                    Player.Update(gameTime);
+                    //pg. 231
+                    WeaponManager.Update(gameTime);
+                    //pg. 280
+                    EnemyManager.Update(gameTime);
+                    //pg. 227
+                    EffectsManager.Update(gameTime);
+                    //pg. 270
+                    GoalManager.Update(gameTime);
+
+                    if (GoalManager.ActiveTerminals == 0)
+                    {
+                        gameState = GameStates.WaveComplete;
+                    }
+                    break;
+
+                case GameStates.WaveComplete:
+                    waveCompleteTimer +=
+                        (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    if (waveCompleteTimer > waveCompleteDelay)
+                    {
+                        GameManager.StartNewWave();
+                        gameState = GameStates.Playing;
+                        waveCompleteTimer = 0.0f;
+                    }
+                    break;
+
+                case GameStates.GameOver:
+                    gameOverTimer +=
+                        (float)gameTime.ElapsedGameTime.TotalSeconds;
+                    if (gameOverTimer > gameOverDelay)
+                    {
+                        gameState = GameStates.TitleScreen;
+                        gameOverTimer = 0.0f;
+                    }
+                    break;
+            }
 
             base.Update(gameTime);
         }
@@ -197,12 +282,69 @@ namespace RobotRampageCh7
             GraphicsDevice.Clear(Color.CornflowerBlue);
 
         spriteBatch.Begin();
-    TileMap.Draw(spriteBatch);
-    Player.Draw(spriteBatch);
-            //pg.227
-    EffectsManager.Draw(spriteBatch);
-            //pg. 231
-    WeaponManager.Draw(spriteBatch);
+
+        if (gameState == GameStates.TitleScreen)
+        {
+            spriteBatch.Draw(
+                titleScreen,
+                new Rectangle(0, 0, 800, 600),
+                Color.White);
+        }
+            if (( gameState == GameStates.Playing) ||
+                ( gameState == GameStates.WaveComplete) ||
+                ( gameState == GameStates.GameOver))
+            {
+                TileMap.Draw(spriteBatch);
+                WeaponManager.Draw(spriteBatch);
+            Player.Draw(spriteBatch);
+            EnemyManager.Draw(spriteBatch);
+            EffectsManager.Draw(spriteBatch);
+            GoalManager.Draw(spriteBatch);
+
+            checkPlayerDeath();
+
+            spriteBatch.DrawString(
+                pericles14,
+                "Score: " + GameManager.Score.ToString(),
+                new Vector2(30, 5),
+                Color.White);
+
+            spriteBatch.DrawString(
+                pericles14,
+                "Terminals Remaining: " +
+                GoalManager.ActiveTerminals,
+                new Vector2(520, 5),
+                Color.White);
+        }
+            if (gameState == GameStates.WaveComplete)
+            {
+                spriteBatch.DrawString(
+                pericles14,
+                "Beginning Wave " +
+                (GameManager.CurrentWave+1).ToString(),
+                new Vector2(300, 300),
+                Color.White);
+            }
+            if (gameState == GameStates.GameOver)
+            {
+                spriteBatch.DrawString(
+                    pericles14,
+                    "G A M E  O V E R!",
+                    new Vector2(300,300),
+                    Color.White);
+            }
+            spriteBatch.End();
+            
+    //TileMap.Draw(spriteBatch);
+    ////pg. 231
+    //WeaponManager.Draw(spriteBatch);
+    //Player.Draw(spriteBatch);
+    //        //pg. 280
+    //EnemyManager.Draw(spriteBatch);
+    //        //pg.227
+    //EffectsManager.Draw(spriteBatch);
+    //    //pg. 271
+    //GoalManager.Draw(spriteBatch);
 
 
             //Temp code
@@ -232,7 +374,7 @@ namespace RobotRampageCh7
 
 
 
-    spriteBatch.End();
+    //spriteBatch.End();
 
     base.Draw(gameTime);
 //}

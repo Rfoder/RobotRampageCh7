@@ -55,8 +55,19 @@ namespace RobotRampageCh7
                 LastSpawnCounter += elapsed;
                 if (LastSpawnCounter > minSpawnTime)
                 {
-                    LastSpawnCounter = 0;
+                    //pg. 279
+                    if (Vector2.Distance(activeSprite.WorldCenter,
+                        Player.BaseSprite.WorldCenter) > 128)
+                    {
+
+                    if (EnemyManager.Enemies.Count <
+                        EnemyManager.MaxActiveEnemies)
+                    {
+                        EnemyManager.AddEnemy(MapLocation);
+                        LastSpawnCounter = 0;
+                    }
                 }
+             }
                 activeSprite.Update(gameTime);
             }
             else

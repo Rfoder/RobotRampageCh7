@@ -72,7 +72,7 @@ namespace RobotRampageCh7
                 GetSquareByPixelY((int)pixelLocation.Y));
         }
 
-        static Vector2 GetSquareCenter(int squareX, int squareY)
+        static public Vector2 GetSquareCenter(int squareX, int squareY)
         {
             return new Vector2(
                 (squareX * TileWidth) + (TileWidth / 2),
